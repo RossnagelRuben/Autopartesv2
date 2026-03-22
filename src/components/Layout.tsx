@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Icons } from './Icons';
+import { useCart } from '../context/CartContext';
 
 export const Header = () => {
+  const {totalItems} = useCart();
   return (
     <header className="fixed top-0 w-full z-50 glass-header border-b border-outline-variant/20">
       <div className="flex justify-between items-center px-6 py-3 max-w-screen-2xl mx-auto w-full">
@@ -28,9 +30,13 @@ export const Header = () => {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/cart" className="p-2 hover:bg-surface-container rounded-sm transition-transform active:scale-95 relative">
+            <Link to="/cart" className="p-2 hover:bg-surface-container rounded-sm transition-transform active:scale-95 relative" aria-label="Carrito">
               <Icons.ShoppingCart className="text-primary w-5 h-5" />
-              <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+              {totalItems > 0 ? (
+                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              ) : null}
             </Link>
             <button className="p-2 hover:bg-surface-container rounded-sm transition-transform active:scale-95">
               <Icons.Bell className="text-primary w-5 h-5" />

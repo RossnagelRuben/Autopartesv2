@@ -2,8 +2,15 @@ import React from 'react';
 import { Icons } from './Icons';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { useProducts } from '../context/ProductsContext';
+import { useCart } from '../context/CartContext';
+import { formatARS } from '../lib/formatMoney';
 
 export const Home = () => {
+  const { productos, loading } = useProducts();
+  const { addItem } = useCart();
+  const ofertas = productos.slice(0, 4);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -147,47 +154,54 @@ export const Home = () => {
                 <span className="text-[8px] uppercase font-bold text-on-surface-variant">Hrs</span>
               </div>
               <div className="bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/10 text-center min-w-[60px]">
-                <span class="block text-xl font-bold text-primary">45</span>
-                <span class="text-[8px] uppercase font-bold text-on-surface-variant">Min</span>
+                <span className="block text-xl font-bold text-primary">45</span>
+                <span className="text-[8px] uppercase font-bold text-on-surface-variant">Min</span>
               </div>
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-surface-container-lowest p-6 border border-outline-variant/5 hover:border-primary/20 transition-all flex flex-col group">
-                <div className="relative mb-6 bg-surface-container-low aspect-square rounded-lg flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={`https://picsum.photos/seed/part${i}/400/400`} 
-                    alt="Part" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <span className="absolute top-3 left-3 bg-error text-white px-2 py-1 text-[10px] font-bold rounded-sm">-25%</span>
-                </div>
-                <div className="flex-1">
-                  <span className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Bosch Performance</span>
-                  <h4 className="font-headline text-lg font-bold text-primary mb-2">Filtro de Aceite Serie M</h4>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="bg-surface-container-highest text-primary px-3 py-1 rounded-full text-lg font-black">$45.00</span>
-                    <span className="text-on-surface-variant line-through text-xs">$60.00</span>
-                  </div>
-                  <div className="flex flex-col gap-2 mb-6">
-                    <div className="flex justify-between text-[10px] border-b border-outline-variant/10 pb-1">
-                      <span className="text-on-surface-variant">OEM ID:</span>
-                      <span className="font-bold text-primary">BX-99420-S</span>
+            {loading
+              ? [1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-surface-container-lowest p-6 rounded-lg h-[420px] animate-pulse" />
+                ))
+              : ofertas.map((p) => (
+                  <div
+                    key={p.codigo}
+                    className="bg-surface-container-lowest p-6 border border-outline-variant/5 hover:border-primary/20 transition-all flex flex-col group"
+                  >
+                    <Link to={`/product/${encodeURIComponent(p.codigo)}`} className="block">
+                      <div className="relative mb-6 bg-surface-container-low aspect-square rounded-lg flex items-center justify-center overflow-hidden">
+                        <img
+                          src={p.imagenUrl}
+                          alt={p.descripcion}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                        />
+                        <span className="absolute top-3 left-3 bg-primary text-white px-2 py-1 text-[10px] font-bold rounded-sm">
+                          {p.tipo}
+                        </span>
+                      </div>
+                    </Link>
+                    <div className="flex-1">
+                      <span className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">{p.codigo}</span>
+                      <h4 className="font-headline text-lg font-bold text-primary mb-2 line-clamp-2">{p.descripcion}</h4>
+                      <p className="text-xs text-on-surface-variant mb-4">{p.modelo}</p>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="bg-surface-container-highest text-primary px-3 py-1 rounded-full text-lg font-black">
+                          {formatARS(p.precioUnitario)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-[10px] border-b border-outline-variant/10 pb-1">
-                      <span className="text-on-surface-variant">Compatibilidad:</span>
-                      <span className="font-bold text-primary">BMW / Audi</span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => addItem(p, 1)}
+                      className="w-full bg-primary text-white py-3 font-bold text-xs tracking-widest uppercase hover:bg-primary-container transition-colors"
+                    >
+                      Añadir al carrito
+                    </button>
                   </div>
-                </div>
-                <button className="w-full bg-primary text-white py-3 font-bold text-xs tracking-widest uppercase hover:bg-primary-container transition-colors">
-                  AÑADIR AL BOX
-                </button>
-              </div>
-            ))}
+                ))}
           </div>
         </div>
       </section>
